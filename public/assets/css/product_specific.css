@@ -1,0 +1,21 @@
+.Product-Specific {
+  background-color: rgba(0, 187, 255, 0.477);
+  border-width: 0;
+  max-width: 90%;
+  width: 750px;
+  height: auto;
+}
+
+.Product-Specific_menu {
+  margin-left: calc(8% + 5px);
+  padding-top: 15px;
+}
+
+.Product-Specific_menu th {
+  padding: 10px 20px;
+}
+
+.Product-Specific_menu input,
+.Product-Specific_menu textarea {
+  background-color: aqua;
+}

@@ -1,0 +1,21 @@
+.Register {
+  height: auto;
+  max-width: 90%;
+  width: 750px;
+  text-align: center;
+}
+
+.Register_menu {
+  margin-top: 5%;
+}
+
+.Register_menu dt {
+  width: 165px;
+  margin: 0 auto;
+  float: left;
+  clear: both;
+}
+
+.Register_menu dd {
+  padding: 15px 0;
+}
