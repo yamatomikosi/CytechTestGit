@@ -5,12 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Companies;
+use Illuminate\Support\Facades\Storage;
 
 class Products extends Model
 {
+    protected $guarded = ['id','created_at','updated_at'];
+
     public function getList()
     {
-        $Products = DB::table('products')->get();
+        $Products = $this->with('companies')->get();
         return $Products;
     }
 
@@ -21,30 +24,42 @@ class Products extends Model
         return $Product;
     }
 
-    public function createtDate($Ci, $Pn, $P, $S, $C = '', $Ip)
+    public function updateOrCreateDate($date, $image)
     {
-        DB::table('products')->insert([
-            "companie_id" => $Ci,
-            "product_name" => $Pn,
-            "price" => $P,
-            "stock" => $S,
-            "comment" => $C,
-            "img_path" => $Ip
-        ]);
+        $filename = basename($image);
+        if (isset($image)) {
+            $filename ="storage/images/" . $filename;
+
+            $fileExists = Storage::exists('public/images/' . $image->getClientOriginalName());
+
+        if (!$fileExists) {
+            $image->store('public/images');
+        }
+        }else{
+            $filename = null; 
+        }
+
+
+        $this->query()->updateOrCreate(
+            ['id' => $date['id']],
+            [
+                'companie_id' => $date['companie_id'],
+                'product_name' => $date['product_name'],
+                'price' => $date['price'],
+                'stock' => $date['stock'],
+                'comment' => $date['comment'],
+                'img_path' => $filename
+            ]
+        );
     }
-    public function updateDate($id, $Ci, $Pn, $P, $S, $C = '', $Ip)
+    public function deleteDate($id)
     {
-        DB::table('products')->where('id', $id)->update([
-            "companie_id" => $Ci,
-            "product_name" => $Pn,
-            "price" => $P,
-            "stock" => $S,
-            "comment" => $C,
-            "img_path" => $Ip
-        ]);
-    }
-    public function deleteDate()
-    {
+        $product = $this->where('id', $id)->first();
+
+        if ($product) {
+            $product->delete();
+            session()->flash('success', '商品が削除されました');
+        }
     }
     public function companies()
     {

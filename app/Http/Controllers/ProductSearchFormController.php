@@ -13,20 +13,26 @@ class ProductSearchFormController extends Controller
 
     public function productInformantsPage(Request $request)
     {
+        $products = new Products();
+        $products_list = $products->getList();
         $companies = new Companies();
         $companies = $companies->getList();
 
         $name = $request->input('product_name');
         $meka = $request->input('company_id');
-
-        $products = Products::select('products.id', 'products.product_name', 'products.price', 'products.stock', 'products.comment', 'products.img_path', 'companies.id as company_id', 'companies.company_name')
-            ->join('companies', 'products.companie_id', '=', 'companies.id')->get();
-        if (!empty($name) && !empty($meka)) {
-            $products = $products->where('product_name', $name)->whereHas('companies', function ($query) use ($meka) {
-                $query->where('company_name', $meka);
-            });
-        }
-        return view('contents/product_informants', ['products' => $products, 'companies' => $companies]);
+        if($name){
+            $products_list = $products_list->where('product_name','like',"%$name%");
+            }
+            if($meka){
+                $products_list = $products_list->where('companie_id', $meka);
+            }
+            
+            if($request->has('product_id')){
+                $productId = $request->input('product_id');
+                $products->deleteDate($productId);
+                return redirect()->route('prodInts');
+            }
+        return view('contents/product_informants', ['products' => $products_list, 'companies' => $companies]);
     }
 
     public function productRegisterForm(Request $request)
@@ -34,13 +40,13 @@ class ProductSearchFormController extends Controller
         $date = $request->all();
         $products = new Products();
         $companies = new Companies();
-        if (!empty($date)) {
-            $image = $request->file('img_path')->store('public/images');
-            $filename = basename($image);
-            $products->createtDate($date['companie_id'], $date['product_name'], $date['price'], $date['stock'], $date['comment'], "storage/images/" . $filename);
+        $companies = $companies->getList();
+        $image = $request->file('img_path');
+
+        if ($request->isMethod('post')) {
+            $products = $products->updateOrCreateDate($date, $image);
         }
 
-        $companies = $companies->getList();
         return view('contents/product_register', ['companies' => $companies]);
     }
     public function productSpecificPage(Request $request)
@@ -52,20 +58,17 @@ class ProductSearchFormController extends Controller
     }
     public function productInformantEditForm(Request $request)
     {
-        $date = $request->all();
+        $id = $request->input('id');
         $products = new Products();
+        $date = $products->getColumu($id);
         $companies = new Companies();
         $companies = $companies->getList();
-
+        $image = $request->file('img_path');
+        
         if ($request->isMethod('post')) {
-            $image = $request->file('img_path');
-            $filename = basename($image);
-            $fileExists = Storage::exists('public/images/' . $image->getClientOriginalName());
-
-            if ($fileExists) {
-                $image->store('public/images');
-            }
-            $products = $products->updateDate($date['id'], $date['companie_id'], $date['product_name'], $date['price'], $date['stock'], $date['comment'], "storage/images/" . $filename);
+            
+            $date = $request->all();
+            $products = $products->updateOrCreateDate($date, $image);
         }
         return view('contents/product_informant_edit', ['date' => $date, 'companies' => $companies]);
     }

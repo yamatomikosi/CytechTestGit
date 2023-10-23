@@ -1,5 +1,5 @@
 h2 {
-  color: pink;
+  margin-bottom: 40px;
 }
 
 h3 {
@@ -19,46 +19,65 @@ img {
   max-width: 100%;
 }
 
-button {
-  margin: 15px 0;
-}
+
 
 textarea {
   vertical-align: top;
 }
 
-.Common_Wrap {
-  padding: 3%;
-  border: medium solid #000;
+dd {
+  margin-inline-start: 0px;
 }
 
-.Common_Inner {
-  padding: 2% 3%;
-  background-color: blue;
-  border: double 8px rgb(72, 255, 0);
-  border-radius: 10px;
+
+.Common_Wrap {
+  padding: 3% 5%;
 }
+
 
 .Container {
-  min-height: 100vh;
+  width: 1000px;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+.content-box {
+  border: solid black 1px;
+  margin: 0 auto;
+  width: 750px;
+  padding: 30px 50px;
 }
 
 #backPage {
-  display: block;
-  margin-right: auto;
+  float: left;
+  clear: both;
+  margin-right:15px;
 }
 
-.Form {
-  padding: 5px;
-  border: solid 2px #000;
-  margin: auto;
+.information-form {
+  font-size: 17px;
+}
+.information-form_item{
+  margin-bottom: 30px;
+}
+.information-form dt {
+  width: 180px;
+  float: left;
+  clear: both;
+  font-weight: 800;
+}
+.information-form dd {
+  width: 50%;}
+
+.information-form dd,
+.information-form dt {
+  display: inline-block;
+}
+.information-form input,.information-form textarea{
+  width: 100%;
 }
 
-.button-rightside {
-  display: block;
-  margin-left: auto;
-  margin-right: 15px;
-}
+
 
 #imgPathPrev {
   display: block;
@@ -71,4 +90,7 @@ textarea {
 /*モディファイア*/
 .font-color--white {
   color: white;
+}
+.font-color--red{
+  color: red;
 }
