@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+
 use App\Models\Companies;
 use Illuminate\Support\Facades\Storage;
 
 class Products extends Model
 {
-    protected $guarded = ['id','created_at','updated_at'];
+    protected $guarded = ['id', 'created_at', 'updated_at'];
 
     public function getList()
     {
@@ -26,18 +26,15 @@ class Products extends Model
 
     public function updateOrCreateDate($date, $image)
     {
-        return DB::transaction(function () use ($date, $image) {
-        $filename = basename($image);
+
         if (isset($image)) {
-            $filename ="public/images/" . $filename;
-
-            $fileExists = Storage::exists('public/images/' . $image->getClientOriginalName());
-
-        if (!$fileExists) {
-            $image->store('public/images');
-        }
-        }else{
-            $filename = null; 
+            $filename = $image->getClientOriginalName();
+            $fileExists = Storage::exists('public/images/' . $filename);
+            if (!$fileExists) {
+             $image->storeAs('public/images', $filename);
+            }
+        } else {
+            $filename = null;
         }
 
 
@@ -49,22 +46,18 @@ class Products extends Model
                 'price' => $date['price'],
                 'stock' => $date['stock'],
                 'comment' => $date['comment'],
-                'img_path' => $filename
+                'img_path' => 'storage/images/' .$filename
             ]
         );
-    });
     }
-    
     public function deleteDate($id)
     {
-        return DB::transaction(function () use ($id) {
         $product = $this->where('id', $id)->first();
 
         if ($product) {
             $product->delete();
             session()->flash('success', '商品が削除されました');
         }
-    });
     }
     public function companies()
     {

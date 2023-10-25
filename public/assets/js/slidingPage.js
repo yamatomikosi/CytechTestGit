@@ -97,7 +97,7 @@ for (let i = 0; i < $slider_elements.length; i++) {
 
 
       for (let j = 0; j < $num; j++) {
-        if (j < $list_top && j < $list_bottom) {
+        if (j < $list_top || $list_bottom < j) {
           $products[j].style.display = 'none';
         } else {
           $products[j].style.display = 'flex';

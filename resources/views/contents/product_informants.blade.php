@@ -35,7 +35,7 @@ $showView = false;
         <div class="product">
           <dd>{{ $product->id }}.</dd>
 
-          <dd>商品画像</dd>
+          <img class = "product_img"  src = "{{ $product->img_path }}">
 
           <dd>{{ $product->product_name }}</dd>
 

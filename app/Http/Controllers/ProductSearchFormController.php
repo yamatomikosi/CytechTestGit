@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Products;
 use App\Models\Companies;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProductSearchFormController extends Controller
 {
@@ -14,26 +14,33 @@ class ProductSearchFormController extends Controller
     public function productInformantsPage(Request $request)
     {
         $products = new Products();
-        $products_list = $products ->getList();
+        $products_list = $products->getList();
         $companies = new Companies();
         $companies = $companies->getList();
 
         $name = $request->input('product_name');
         $meka = $request->input('company_id');
-        if($name){
+        if ($name) {
             $products_list = $products_list->filter(function ($product) use ($name) {
                 return stripos($product->product_name, $name) !== false;;
             });
         }
-            if($meka){
-                $products_list = $products_list->where('companie_id', $meka);
-            }
-            
-            if($request->has('product_id')){
+        if ($meka) {
+            $products_list = $products_list->where('companie_id', $meka);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($request->has('product_id')) {
                 $productId = $request->input('product_id');
                 $products->deleteDate($productId);
+                DB::commit();
                 return redirect()->route('prodInts');
             }
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
         return view('contents/product_informants', ['products' => $products_list, 'companies' => $companies]);
     }
 
@@ -46,7 +53,14 @@ class ProductSearchFormController extends Controller
         $image = $request->file('img_path');
 
         if ($request->isMethod('post')) {
-            $products = $products->updateOrCreateDate($date, $image);
+            DB::beginTransaction();
+            try {
+                $products = $products->updateOrCreateDate($date, $image);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                return back();
+            }
         }
 
         return view('contents/product_register', ['companies' => $companies]);
@@ -65,12 +79,18 @@ class ProductSearchFormController extends Controller
         $date = $products->getColumu($id);
         $companies = new Companies();
         $companies = $companies->getList();
-        $image = $request->file('img_path');
-        
+    
         if ($request->isMethod('post')) {
-            
-            $date = $request->all();
-            $products = $products->updateOrCreateDate($date, $image);
+            DB::beginTransaction();
+            try {
+                $image = $request->file('img_path');
+                $date = $request->all();
+                $products = $products->updateOrCreateDate($date, $image);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                return back();
+            }
         }
         return view('contents/product_informant_edit', ['date' => $date, 'companies' => $companies]);
     }

@@ -19,7 +19,7 @@ $showView = true;
       </div>
       <div class="information-form_item">
         <dt>商品画像</dt>
-        <dd><img   src ="{{ asset( $product->img_path) }}" ></dd>
+        <dd><img  src ="{{ asset( $product->img_path) }}" ></dd>
       </div>
       <div class="information-form_item">
         <dt>商品名</dt>
