@@ -14,15 +14,17 @@ class ProductSearchFormController extends Controller
     public function productInformantsPage(Request $request)
     {
         $products = new Products();
-        $products_list = $products->getList();
+        $products_list = $products ->getList();
         $companies = new Companies();
         $companies = $companies->getList();
 
         $name = $request->input('product_name');
         $meka = $request->input('company_id');
         if($name){
-            $products_list = $products_list->where('product_name','like',"%$name%");
-            }
+            $products_list = $products_list->filter(function ($product) use ($name) {
+                return stripos($product->product_name, $name) !== false;;
+            });
+        }
             if($meka){
                 $products_list = $products_list->where('companie_id', $meka);
             }

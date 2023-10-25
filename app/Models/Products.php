@@ -26,9 +26,10 @@ class Products extends Model
 
     public function updateOrCreateDate($date, $image)
     {
+        return DB::transaction(function () use ($date, $image) {
         $filename = basename($image);
         if (isset($image)) {
-            $filename ="storage/images/" . $filename;
+            $filename ="public/images/" . $filename;
 
             $fileExists = Storage::exists('public/images/' . $image->getClientOriginalName());
 
@@ -51,15 +52,19 @@ class Products extends Model
                 'img_path' => $filename
             ]
         );
+    });
     }
+    
     public function deleteDate($id)
     {
+        return DB::transaction(function () use ($id) {
         $product = $this->where('id', $id)->first();
 
         if ($product) {
             $product->delete();
             session()->flash('success', '商品が削除されました');
         }
+    });
     }
     public function companies()
     {
