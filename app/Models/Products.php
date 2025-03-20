@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use App\Models\Companies;
+use App\Models\API\Sales;
 use Illuminate\Support\Facades\Storage;
+use Termwind\Components\Raw;
 
 class Products extends Model
 {
@@ -13,16 +14,43 @@ class Products extends Model
 
     public function getList()
     {
-        $Products = $this->with('companies')->get();
-        return $Products;
+        $products = $this->with('companies')->get();
+        return $products;
     }
 
     public function getColumu($id)
     {
-        $Product = $this->where('id', $id)->with('companies')->first();
+        $product = $this->where('id', $id)->with('companies')->first();
 
-        return $Product;
+        return $product;
+    }   
+    public function searchList($name, $meka, $price, $stock) {
+        $query = $this->newQuery();
+    
+        if ($name) {
+            $query->where(function ($query) use ($name) {
+                $query->where('product_name', 'like', '%' . $name . '%');
+            });
+        }
+    
+        if ($meka) {
+            $query->where('companie_id', $meka);
+        }
+    
+        $query->whereBetween('price', [
+            $price['min'] ?? 0,
+            $price['max'] ?? PHP_INT_MAX,
+        ]);
+        
+        $query->whereBetween('stock', [
+            $stock['min'] ?? 0 ,
+            $stock['max'] ?? PHP_INT_MAX,
+        ]);
+        $products_list = $query->with('companies')->get();
+    
+        return $products_list;
     }
+
 
     public function updateOrCreateDate($date, $image)
     {
@@ -63,6 +91,8 @@ class Products extends Model
     {
         return $this->belongsTo(Companies::class, 'companie_id', 'id');
     }
+
+
     public function sales()
     {
         return $this->hasMany(Sales::class);

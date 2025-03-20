@@ -17,29 +17,31 @@ class ProductSearchFormController extends Controller
         $products_list = $products->getList();
         $companies = new Companies();
         $companies = $companies->getList();
-
-        $name = $request->input('product_name');
-        $meka = $request->input('company_id');
-        if ($name) {
-            $products_list = $products_list->filter(function ($product) use ($name) {
-                return stripos($product->product_name, $name) !== false;;
-            });
-        }
-        if ($meka) {
-            $products_list = $products_list->where('companie_id', $meka);
-        }
-
-        DB::beginTransaction();
-        try {
-            if ($request->has('product_id')) {
-                $productId = $request->input('product_id');
-                $products->deleteDate($productId);
-                DB::commit();
-                return redirect()->route('prodInts');
+        
+        $form = request() -> all();
+        if (isset($form['is_search']) && $form['is_search'] == true) {
+           
+            $price = ['min' => $form['price_min'], 'max' => $form['price_max']];
+            $stock = ['min' => $form['stock_min'], 'max' => $form['stock_max']];
+    
+             $products_list = $products->searchList($form['product_name'], $form['company_id'], $price, $stock);
+             return response()->json($products_list); 
+        } 
+        
+        if ($request->has('remove_id')) {
+            DB::beginTransaction();
+            try {
+                $productId = $request->input("remove_id");
+              $product = $products->find($productId);
+            if ($product) {
+                $product->delete();
             }
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back();
+                DB::commit();
+                
+            } catch (\Exception $e) {
+                DB::rollback();
+                return back();
+            }
         }
         return view('contents/product_informants', ['products' => $products_list, 'companies' => $companies]);
     }
@@ -79,7 +81,7 @@ class ProductSearchFormController extends Controller
         $date = $products->getColumu($id);
         $companies = new Companies();
         $companies = $companies->getList();
-    
+
         if ($request->isMethod('post')) {
             DB::beginTransaction();
             try {

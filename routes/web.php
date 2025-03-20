@@ -19,6 +19,7 @@ Route::get('/', function () {
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/product_informants',[App\Http\Controllers\ProductSearchFormController::class, 'productInformantsPage'])->name('prodInts');
+Route::post('/product_informants',[App\Http\Controllers\ProductSearchFormController::class, 'productInformantsPage'])->name('prodInts');
 Route::get('/product_register',[App\Http\Controllers\ProductSearchFormController::class, 'productRegisterForm'])->name('new');
 Route::post('/product_register',[App\Http\Controllers\ProductSearchFormController::class, 'productRegisterForm'])->name('new');
 Route::get('/product_specific',[App\Http\Controllers\ProductSearchFormController::class, 'productSpecificPage'])->name('prodSp');
