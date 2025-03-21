@@ -14,31 +14,28 @@ class ApiController extends Controller
     public function buy(Request $request)
     {
         DB::beginTransaction();
-       try {
+        try {
 
-        $product_id = $request->get('product_id');
+            $product_id = $request->get('product_id');
 
-        $product = Products::find($product_id);
+            $product = Products::find($product_id);
 
-        if($product){
+            if ($product->stock < 0) {
+                return response()->json(['error' => '在庫切れです'], 400);
+            }
+            if (!$product) {
+                return response()->json(['error' => '該当品がありません'], 404);
+            }
+            
+            $product->decrement('stock');
 
-            if($product->stock > 0){
+            $sales = new Sales();
+            $sales->CreateDate($product_id);
+            DB::commit();
+          
+            return response()->json(['message' => '成功'], 200);
 
-                $product->decrement('stock');
-
-                $sales = new Sales();
-                     $sales->CreateDate($product_id);
-                 DB::commit();
-                 return response()->json(['message' => '成功'], 200);
-            } else {
-            return response()->json(['error' => '在庫切れです'], 400);
-                 }
-
-        }else{
-            return response()->json(['error' => '該当品がありません'], 404);
-        }
-
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
 
             $result = [
                 'result' => false,
@@ -51,9 +48,9 @@ class ApiController extends Controller
         return $this->resConversionJson($result);
     }
 
-    private function resConversionJson($result, $statusCode=200)
+    private function resConversionJson($result, $statusCode = 200)
     {
-        if(empty($statusCode) || $statusCode < 100 || $statusCode >= 600){
+        if (empty($statusCode) || $statusCode < 100 || $statusCode >= 600) {
             $statusCode = 500;
         }
         return response()->json($result, $statusCode, ['Content-Type' => 'application/json'], JSON_UNESCAPED_SLASHES);
